@@ -20,14 +20,15 @@ class SQLDAO(BaseDao):
         """
         add new user
         """
-        db_user = UserModel(username, password)
         async with self.get_async_session() as session:
-            async with session.begin():
-                try:
+            try:
+                async with session.begin():
+                    db_user = UserModel(username, password)
                     session.add(db_user)
                     await session.flush()  # refresh own primary key
                     session.expunge(db_user)  # release data
                     # begin() context will auto commit trancastion
-                except SQLAlchemyError as sql_ex:
-                    raise sql_ex
-        return db_user
+                return db_user
+            except SQLAlchemyError as sql_ex:
+                raise sql_ex
+        
